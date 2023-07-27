@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
-const groupRideSchema = new Schema({
+const eventSchema = new Schema({
     location: String,
     createdBy: {type: Schema.Types.ObjectId, ref: "User"},
     title: String,
@@ -9,8 +9,11 @@ const groupRideSchema = new Schema({
     level: String,
     description: String,
     signedUp: {type: Boolean, default: false},
+    // enum allows you to specify multiple values 
+    eventType: {type: String, enum: ['race', 'group ride'], required: true}
+    
   });
 
-const GroupRide = model("GroupRide", userSchema);
+const Event = model("Event", eventSchema);
 
-module.exports = GroupRide;
+module.exports = Event;
