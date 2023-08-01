@@ -14,6 +14,7 @@ router.post("/createEvent", (req, res, next) => {
     });
 });
 
+//READ
 router.get("/", (req, res, next) => {
   Event.find({}, "title")
 
