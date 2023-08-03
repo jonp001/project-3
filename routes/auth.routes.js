@@ -85,7 +85,7 @@ router.post("/login", (req, res, next) => {
     res.status(400).json({ message: "Provide email and password." });
     return;
   }
-
+  
   // Check the users collection if a user with the same email exists
   User.findOne({ email })
     .then((foundUser) => {
