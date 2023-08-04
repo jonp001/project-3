@@ -1,8 +1,7 @@
 const { Schema, model } = require("mongoose");
 
-// TODO: Please make sure you edit the User model to whatever makes sense in this case
 const eventSchema = new Schema({
-    location: String,
+    location: { type: Schema.Types.ObjectId, ref: "Location"},
     createdBy: {type: Schema.Types.ObjectId, ref: "User"},
     title: String,
     img: String,
