@@ -109,7 +109,7 @@ router.put("/groupRides/:id", (req, res, next) => {
     });
 });
 
-// DELETE
+// DELETE EVENT LISTING
 router.delete("/event/:id", (req, res, next) => {
   Event.findByIdAndDelete(req.params.id)
     .then((deletedEvent) => {

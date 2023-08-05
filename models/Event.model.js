@@ -7,6 +7,7 @@ const eventSchema = new Schema({
     img: String,
     level: String,
     description: String,
+    startTime: String,
     signedUp: {type: Boolean, default: false},
     // enum allows you to specify multiple values 
     eventType: {type: String, enum: ['race', 'group ride'], required: true}
