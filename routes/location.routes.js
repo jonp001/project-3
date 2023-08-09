@@ -5,7 +5,7 @@ const Event = require("../models/Event.model");
 
 // CREATE LOCATION
 router.post("/location", async (req, res, next) => {
-  const { startLocation } = req.body;
+  const { startLocation, eventId } = req.body;
   const  { latitude, longitude } = startLocation;
 
   if(!latitude || !longitude){
@@ -21,7 +21,15 @@ router.post("/location", async (req, res, next) => {
 
   try{ 
     await location.save();
-
+    //Link the location to the event using ID
+    const event= await Event.findById(eventId);
+    if (event) {
+      event.location= location._id;
+      await event.save();
+    } else {
+      return res.status(400).json({ message: "Event not found" });
+    }
+    
     res.status(201).json(location);
   } catch (err) {
     console.log(err);

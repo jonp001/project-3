@@ -14,6 +14,17 @@ router.post("/createEvent", (req, res, next) => {
     });
 });
 
+// GET INDIVIDUAL EVENT LISTING BY ID
+router.get("/:id", (req, res, next) => {
+  Event.findById(req.params.id)
+    .then((event) => {
+      res.json({ message: "Event found successfully", event: event });
+    })
+    .catch((err) => {
+      res.json({ success: false, error: err });
+    });
+});
+
 //READ
 router.get("/", (req, res, next) => {
   Event.find({}, "title")
@@ -25,6 +36,7 @@ router.get("/", (req, res, next) => {
       res.json({ success: false, error: err });
     });
 });
+
 
 // GET ALL GROUP RIDES
 router.get("/groupRides", (req, res, next) => {
