@@ -8,7 +8,7 @@ router.post("/location", async (req, res, next) => {
   const { startLocation, eventId } = req.body;
   const  { latitude, longitude } = startLocation;
 
-  if(!latitude || !longitude){
+  if(typeof latitude !== "number" || typeof longitude !== "number"){
     return res.status(400).json({ message: "Both Latitude and Longitude are required!"});
   }
 
@@ -18,18 +18,24 @@ router.post("/location", async (req, res, next) => {
     city: req.body.city,
     state: req.body.state
   });
+  console.log(req.body)
 
   try{ 
     await location.save();
+    console.log("Saved Location:", location);
+
     //Link the location to the event using ID
     const event= await Event.findById(eventId);
+    console.log("Found Event:", event);
+
+
     if (event) {
       event.location= location._id;
       await event.save();
     } else {
       return res.status(400).json({ message: "Event not found" });
     }
-    
+
     res.status(201).json(location);
   } catch (err) {
     console.log(err);
