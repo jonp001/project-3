@@ -7,8 +7,8 @@ const locationSchema = new Schema({
     state: String,
     city: String,
     startLocation: {
-      latitude: Number,
-      longitude: Number,
+      lat: Number,
+      lng: Number,
       address: String 
     },
     time: String,

@@ -6,9 +6,9 @@ const Event = require("../models/Event.model");
 // CREATE LOCATION
 router.post("/location", async (req, res, next) => {
   const { startLocation, eventId } = req.body;
-  const  { latitude, longitude } = startLocation;
+  const  { lat, lng } = startLocation;
 
-  if(typeof latitude !== "number" || typeof longitude !== "number"){
+  if(typeof lat !== "number" || typeof lng !== "number"){
     return res.status(400).json({ message: "Both Latitude and Longitude are required!"});
   }
 
@@ -33,6 +33,7 @@ router.post("/location", async (req, res, next) => {
       event.location= location._id;
       await event.save();
     } else {
+      await location.delete(); // deletes location if event doesnt exist
       return res.status(400).json({ message: "Event not found" });
     }
 
@@ -46,7 +47,7 @@ router.post("/location", async (req, res, next) => {
 
 //READ ALL LOCATIONS
 router.get("/allLocations", (req, res, next) => {
-  Location.find({}, "state city startLocation.latitude startLocation.longitude")
+  Location.find({}, "state city startLocation.lat startLocation.lng")
 
     .then((locations) => {
       res.json({ success: true, locations });

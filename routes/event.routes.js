@@ -15,14 +15,18 @@ router.post("/createEvent", (req, res, next) => {
 });
 
 // GET INDIVIDUAL EVENT LISTING BY ID
-router.get("/:id", (req, res, next) => {
-  Event.findById(req.params.id)
-    .then((event) => {
-      res.json({ message: "Event found successfully", event: event });
-    })
-    .catch((err) => {
-      res.json({ success: false, error: err });
-    });
+router.get("/:id",  async (req, res, next) => {
+  try {
+    const event=await Event.findById(req.params.id).populate('location');
+
+    if(!event) {
+      return res.status(404).json ({ message: "Event not found" });
+    }
+
+     res.json({ success: true, event });
+  } catch(err) {
+      res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 //READ
