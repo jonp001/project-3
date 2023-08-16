@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Location = require("../models/Location.model");
 const Event = require("../models/Event.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+const { isOwnerOrAdmin } = require("../middleware/editAuth.middleware");
 
 // CREATE LOCATION
 router.post("/location", async (req, res, next) => {
@@ -57,6 +59,21 @@ router.get("/allLocations", (req, res, next) => {
     });
 });
 
+router.get("/location/:locationId", (req, res, next) => {
+  Location.findById(req.params.locationId)
+    .then((location) => {
+      if (location) {
+        res.json({ success: true, location });
+      } else {
+        res.status(404).json({ success: false, message: "Location not found" });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ success: false, error: err });
+    });
+});
+
 // GET ALL EVENTS IN A LOCATION
 router.get("/allLocations/:locationId/events", async (req, res, next) => {
     const { locationId } = req.params;
@@ -71,24 +88,21 @@ router.get("/allLocations/:locationId/events", async (req, res, next) => {
 
 
 //UPDATE LOCATION 
-router.put("/location/:id", (req, res, next) => {
+router.put("/edit-location/:id", isAuthenticated,  (req, res, next) => {
   Location.findByIdAndUpdate(req.params.id, req.body, { new: true })
 
     .then((location) => {
-      if (!location) {
-        res.status(404).json({ message: "No Location Found" });
-      } else {
-        res.json({ message: "Location Update Successful", location: location});
-      }
+      res.json({ success: true, location });
     })
     .catch((err) => {
+      console.log(err);
       res.json({ success: false, error: err });
     });
 });
 
 
 // DELETE LOCATION
-router.delete("/location/:id", (req, res, next) => {
+router.delete("/location/:id", isAuthenticated, (req, res, next) => {
   Location.findByIdAndDelete(req.params.id)
     .then((deletedLocation) => {
       if (deletedLocation) {

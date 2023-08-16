@@ -1,10 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/Event.model");
+const Location= require("../models/Location.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+const { isOwnerOrAdmin } = require("../middleware/editAuth.middleware");
 
 // CREATE EVENT
-router.post("/createEvent", (req, res, next) => {
-  Event.create(req.body)
+router.post("/createEvent", isAuthenticated, (req, res, next) => {
+  console.log(req.payload)
+ 
+
+  const eventData = {
+    ...req.body,
+    createdBy: req.payload._id
+  };
+  console.log("Constructed Event Data:", eventData)
+  Event.create(eventData)
 
     .then((event) => {
       res.json({ success: true, event });
@@ -17,7 +28,9 @@ router.post("/createEvent", (req, res, next) => {
 // GET INDIVIDUAL EVENT LISTING BY ID
 router.get("/:id",  async (req, res, next) => {
   try {
-    const event=await Event.findById(req.params.id).populate('location');
+    const event=await Event.findById(req.params.id)
+    .populate('location')
+    .populate('createdBy');
 
     if(!event) {
       return res.status(404).json ({ message: "Event not found" });
@@ -98,35 +111,22 @@ router.get("/races/:id", (req, res, next) => {
     });
 });
 
-//UPDATE RACE LISTING
-router.put("/races/:id", (req, res, next) => {
+// UPDATE EVENT LISTING
+router.put("/edit-event/:id", isAuthenticated, isOwnerOrAdmin, (req, res, next) => {
+  console.log(req.body)
   Event.findByIdAndUpdate(req.params.id, req.body, { new: true })
 
     .then((event) => {
-      if (event.eventType !== "race") {
-        res.status(404).json({ message: "NOT a race" });
-      } else {
-        res.json({ message: "Race found successfully", event: event });
-      }
+      res.json({ success: true, event });
     })
     .catch((err) => {
-      res.json({ success: false, error: err });
-    });
-});
-
-//UPDATE Group Rides LISTING
-router.put("/groupRides/:id", (req, res, next) => {
-  Event.findByIdAndUpdate(req.params.id, req.body, { new: true }) // new: true updates with only new info
-    .then((groupRides) => {
-      res.json({ success: true, groupRides });
-    })
-    .catch((err) => {
+      console.log(err)
       res.json({ success: false, error: err });
     });
 });
 
 // DELETE EVENT LISTING
-router.delete("/event/:id", (req, res, next) => {
+router.delete("/event/:id",isAuthenticated, isOwnerOrAdmin, (req, res, next) => {
   Event.findByIdAndDelete(req.params.id)
     .then((deletedEvent) => {
       if (deletedEvent) {
