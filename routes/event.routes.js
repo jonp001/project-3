@@ -126,17 +126,35 @@ router.put("/edit-event/:id", isAuthenticated, isOwnerOrAdmin, (req, res, next) 
 });
 
 // DELETE EVENT LISTING
-router.delete("/event/:id",isAuthenticated, isOwnerOrAdmin, (req, res, next) => {
-  Event.findByIdAndDelete(req.params.id)
+router.delete("/event/:id", isAuthenticated, isOwnerOrAdmin, (req, res, next) => {
+  let deletedLocation = null;
+
+  Event.findById(req.params.id)
+    .then((event) => {
+      if (!event) {
+        res.status(404).json({ success: false, message: "Event not found" });
+        return Promise.reject(new Error("Event not found")); // Stop the promise chain
+      }
+
+      if (event.location) {
+        return Location.findByIdAndDelete(event.location);
+      }
+    })
+    .then((location) => {
+      deletedLocation = location; // Save the location information if needed
+      return Event.findByIdAndDelete(req.params.id);
+    })
     .then((deletedEvent) => {
       if (deletedEvent) {
-        res.json({ success: true, message: "Event successfully deleted" });
-      } else {
-        res.status(404).json({ success: false, message: "Event not found" });
+        let message = "Event successfully deleted";
+        if (deletedLocation) {
+          message += " along with its associated location";
+        }
+        res.json({ success: true, message: message });
       }
     })
     .catch((err) => {
-      res.json({ success: false, message: "An error occured", error: err });
+      res.json({ success: false, message: "An error occurred", error: err.message });
     });
 });
 
