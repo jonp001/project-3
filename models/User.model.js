@@ -21,6 +21,7 @@ const userSchema = new Schema(
     bio: { type: String},
     img: { type: String},
     level: { type: String},
+    stravaProfile: { type: String},
     admin: {type: Boolean, default: false},
   },
   {

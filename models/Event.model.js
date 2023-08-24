@@ -8,7 +8,7 @@ const eventSchema = new Schema({
     level: String,
     description: String,
     startTime: String,
-    signedUp: {type: Boolean, default: false},
+    signedUpUsers: [{type: Schema.Types.ObjectId, ref: "User"}],
     // enum allows you to specify multiple values 
     eventType: {type: String, enum: ['race', 'group ride'], required: true}
     

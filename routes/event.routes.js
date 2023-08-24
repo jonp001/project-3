@@ -25,12 +25,54 @@ router.post("/createEvent", isAuthenticated, (req, res, next) => {
     });
 });
 
+// EVENT SIGNUP 
+router.post("/:id/signup", isAuthenticated, (req, res) => {
+  Event.findById(req.params.id)
+      .then(event => {
+        if (!event) {
+          return res.status(404).json({ message: "Event not found" });
+      }
+      // this initilizes the event signup array to 0
+      if (!event.signedUpUsers) {
+        event.signedUpUsers = [];
+    }
+          // Check if user already signed up
+          if (event.signedUpUsers.includes(req.payload._id)) {
+              return res.status(400).json({ message: "Already signed up" });
+          }
+          // Add user to the signed up users list
+          event.signedUpUsers.push(req.payload._id);
+          return event.save();
+      })
+      .then(event => Event.findById(event._id).populate('signedUpUsers')) 
+      .then(event => res.json({ success: true, event }))
+      .catch(err => res.status(500).json({ success: false, error: err.message }));
+});
+
+// EVENT UNSIGNUP
+router.post("/:id/unsignup", isAuthenticated, (req, res) => {
+  Event.findById(req.params.id)
+      .then(event => {
+          const index = event.signedUpUsers.indexOf(req.payload._id);
+          if (index === -1) {
+              return res.status(400).json({ message: "User not signed up for this event" });
+          }
+          // Remove user from the signed up users list
+          event.signedUpUsers.splice(index, 1);
+          return event.save();
+      })
+      .then(event => Event.findById(event._id).populate('signedUpUsers'))
+      .then(event => res.json({ success: true, event }))
+      .catch(err => res.status(500).json({ success: false, error: err.message }));
+});
+
 // GET INDIVIDUAL EVENT LISTING BY ID
 router.get("/:id",  async (req, res, next) => {
   try {
     const event=await Event.findById(req.params.id)
     .populate('location')
-    .populate('createdBy');
+    .populate('createdBy')
+    .populate('signedUpUsers');
 
     if(!event) {
       return res.status(404).json ({ message: "Event not found" });
